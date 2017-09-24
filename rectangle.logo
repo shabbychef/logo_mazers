@@ -1,0 +1,117 @@
+;;;;;;;;;;;;;;;;;;;;;;
+;
+; generate a random rectilinear maze.
+; 
+; Created: 2017.09.23
+; Copyright: Steven E. Pav, 2017
+; Author: Steven E. Pav
+;;;;;;;;;;;;;;;;;;;;;;
+
+; move forward length * segs
+To fwdit :length :segs
+	forward :length*:segs
+end
+; same, but draw as well
+To draw_fwdit :length :segs
+	pendown
+	fwdit :length :segs
+	penup
+end
+; go back
+To bckit :length :segs
+	back :length*:segs
+end
+; make a line with segs segments, where one is not drawn.
+; a hole
+; then go back
+To holey_line :length :segs
+	local "whicho
+  make "whicho (random 1 :segs)
+	draw_fwdit :length (:whicho - 1)
+	fwdit :length 1
+	draw_fwdit :length (:segs - :whicho)
+	bckit :length :segs
+end
+; just make a line
+; then go back
+To noholey_line :length :segs
+  draw_fwdit :length :segs
+	bckit :length :segs
+end
+; maybe one, maybe the yother
+To maybe_holey_line :length :segs :sernum :noholenum
+	ifelse (:sernum = :noholenum) 
+		[ noholey_line :length :segs ] 
+		[ holey_line :length :segs ]
+end
+
+
+
+To inner_maze :wid :hgt :length
+	if (and (:wid > 1) (:hgt > 1)) [
+		local "rwid
+		local "bhgt
+		Local "lwid
+		local "thgt
+		local "holeser
+
+		make "rwid (random 1 (:wid - 1))
+		make "bhgt (random 1 (:hgt - 1))
+		make "lwid (:wid - :rwid)
+		make "thgt (:hgt - :bhgt)
+
+		; 2FIX: this would be neater with an array. oh well.
+		make "holeser (random 1 4)
+		penup
+		fwdit :length :bhgt
+		right 90
+		fwdit :length :lwid
+		left 90
+		maybe_holey_line :length :thgt 1 :holeser
+		right 90
+		maybe_holey_line :length :rwid 2 :holeser
+		right 90
+		maybe_holey_line :length :bhgt 3 :holeser
+		right 90
+		maybe_holey_line :length :lwid 4 :holeser
+		right 90
+		left 90
+		fwdit :length :lwid
+		left 90
+		fwdit :length :bhgt
+		right 180
+		inner_maze :lwid :bhgt :length
+		fwdit :length :bhgt
+		inner_maze :lwid :thgt :length
+		right 90
+		fwdit :length :lwid
+		left 90
+		inner_maze :rwid :thgt :length
+		bckit :length :bhgt
+		inner_maze :rwid :bhgt :length
+		left 90
+		fwdit :length :lwid
+		right 90
+	]
+end
+To outer_maze :wid :hgt :length
+	inner_maze :wid :hgt :length
+	repeat 2 [
+		holey_line :length :hgt 
+		fwdit :length :hgt
+		right 90
+		noholey_line :length :wid
+		fwdit :length :wid
+		right 90
+	]
+end
+
+clearscreen
+cleartext
+hideturtle
+setpos [ -720 -370 ]
+outer_maze 120 70 12
+
+
+;for vim modeline: (do not edit)
+; vim:ts=2:sw=2:tw=79:fdm=marker:fmr=FOLDUP,UNFOLD:cms=;%s:tags=.tags;:syn=logo:ft=logo:ai:si:cin:nu:fo=cro:cino=p0t0c5(0:
