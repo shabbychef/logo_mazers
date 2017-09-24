@@ -1,0 +1,211 @@
+;;;;;;;;;;;;;;;;;;;;;;
+; 
+; generate a random Koch snowflake maze.
+;
+; Created: 2017.09.22
+; Copyright: Steven E. Pav, 2017
+; Author: Steven E. Pav
+;;;;;;;;;;;;;;;;;;;;;;
+
+; move forward length * segs
+To fwdit :length :segs
+	forward :length*:segs
+end
+; same, but draw as well
+To draw_fwdit :length :segs
+	pendown
+	fwdit :length :segs
+	penup
+end
+; go back
+To bckit :length :segs
+	back :length*:segs
+end
+; make a line with segs segments, where one is not drawn.
+; a hole
+; then go back
+To holey_line :length :segs
+	local "whicho
+  make "whicho (random 1 :segs)
+	draw_fwdit :length (:whicho - 1)
+	fwdit :length 1
+	draw_fwdit :length (:segs - :whicho)
+	bckit :length :segs
+end
+; just make a line
+; then go back
+To noholey_line :length :segs
+  draw_fwdit :length :segs
+	bckit :length :segs
+end
+; maybe one, maybe the yother
+To maybe_holey_line :length :segs :sernum :noholenum
+	ifelse (:sernum = :noholenum) 
+		[ noholey_line :length :segs ] 
+		[ holey_line :length :segs ]
+end
+To holey_y :length :segs
+	local "coinflip
+	make "coinflip (random 1 2)
+	left 60
+	maybe_holey_line :length :segs 1 :coinflip
+	right 120
+	maybe_holey_line :length :segs 2 :coinflip
+	left 60
+end
+; make a bone shape with a hole in the middle
+To hole_bone :length :segs
+	fwdit (:length/2) :segs
+	repeat 2 [
+		holey_y :length :segs
+		right 180
+		fwdit :length :segs
+	]
+	right 180
+	holey_line :length :segs
+	fwdit (:length/2) :segs
+	right 180
+end
+; make a bone shape with no hole in the middle
+To nohole_bone :length :segs
+	local "pyraflip
+	make "pyraflip (random 1 4)
+	fwdit (:length/2) :segs
+  for [iii 0 1] [
+		left 60
+		maybe_holey_line :length :segs (1+(2*:iii)) :pyraflip
+		right 120
+		maybe_holey_line :length :segs (2+(2*:iii)) :pyraflip
+		left 60
+		right 180
+		fwdit :length :segs
+	]
+	right 180
+	noholey_line :length :segs
+	fwdit (:length/2) :segs
+	right 180
+end
+; make a bone
+To maybehole_bone :length :segs
+	local "myflip
+	make "myflip (random 1 2)
+	ifelse (:myflip=1) [
+		hole_bone :length :segs
+		] [
+		nohole_bone :length :segs
+			]
+end
+
+; make a trapezoidal maze, recursively,
+; with no skin.
+To trapezoid :depth :length
+	local "myseg
+	make "myseg (power 2 :depth)
+	make "magirat ((sqrt 3) / 4.0)
+	right 90
+	fwdit (:length * :magirat) :myseg
+	left 90
+	maybehole_bone :length (:myseg/2)
+	left 90
+	fwdit (:length * :magirat) :myseg
+	right 90
+	if (:depth > 1) [
+		trapezoid (:depth - 1) :length
+		fwdit :length :myseg
+		right 120
+		repeat 3
+		[
+			fwdit (:length/2) :myseg
+			trapezoid (:depth - 1) :length
+			fwdit (:length/2) :myseg
+			right 60
+		]
+		right 60
+		fwdit :length :myseg
+	]
+end
+
+; make a triangular maze, recursively,
+; with no skin.
+To triangle :depth :length
+	local "myseg
+	make "myseg (power 2 :depth)
+	if (:depth > 0) [
+		trapezoid :depth :length
+		fwdit :length :myseg
+		right 120
+		fwdit :length :myseg
+		right 60
+		holey_line :length :myseg
+		fwdit :length (:myseg/2)
+		right 180
+		triangle (:depth-1) :length
+		fwdit :length (:myseg/2)
+		left 60
+		fwdit :length :myseg
+		left 120
+		fwdit :length :myseg
+		right 180
+	]
+end
+
+To snowskin :hashole :depth :length
+	local "myseg
+	make "myseg (power 2 :depth)
+	local "totlen
+	make "totlen (:myseg * :length)
+	local "trilen 
+	make "trilen (:totlen / 3)
+	local "quartoflip
+	make "quartoflip (random 1 4)
+	forward (:totlen/2)
+	triangle (:depth-1) (:length/3)
+	back (:totlen/6)
+	holey_line (:length/3) :myseg
+	back (:totlen/3)
+	ifelse (:depth>1) [
+		snowskin (and :hashole (:quartoflip=1)) (:depth-1) (2*:length/3)
+		right 60
+		snowskin (and :hashole (:quartoflip=2)) (:depth-1) (2*:length/3)
+		left 120
+		snowskin (and :hashole (:quartoflip=3)) (:depth-1) (2*:length/3)
+		right 60
+		snowskin (and :hashole (:quartoflip=4)) (:depth-1) (2*:length/3)
+	] [
+		ifelse (:hashole) [ 
+			holey_line (:totlen/2) 2
+		] [
+			noholey_line (:totlen/2) 2
+		]
+		forward :totlen
+	]
+end
+
+To snowflake :depth :length
+	snowskin FALSE :depth :length
+	left 120
+	repeat 2 [
+		snowskin TRUE :depth :length
+		left 120
+	]
+	forward ((power 2 (:depth-1)) * :length)
+	right 180
+	triangle (:depth) (:length/2)
+end
+
+To clearall
+	setpos [ 0 0 ]
+	clearscreen
+	cleartext
+	hideturtle
+end
+
+clearall
+penup
+setpos [ -100 -200 ]
+right 30
+rerandom
+snowflake 4 32
+
+;for vim modeline: (do not edit)
+; vim:ts=2:sw=2:tw=79:fdm=marker:fmr=FOLDUP,UNFOLD:cms=;%s:tags=.tags;:syn=logo:ft=logo:ai:si:nocin:nu:fo=cro:cino=p0t0c5(0:
