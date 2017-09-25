@@ -17,11 +17,9 @@ of the mixing of powers of two and powers of three.
 
 Some screenshots here, all generated from the [calormen online logo interpreter](http://www.calormen.com/jslogo/#):
 
-<img src="img/rectangular_maze.png" title="rectangular_maze" alt="rectangular_maze" width="600px" />
+<img src="img/rectangular_maze.png" title="rectangular_maze" alt="rectangular_maze" width="800px" />
 
 <img src="img/triangular_maze.png" title="triangular_maze" alt="triangular_maze" width="600px" />
-
-<img src="img/hexagonal_maze_small.png" title="hexagonal_maze_small" alt="hexagonal_maze_small" width="600px" 
 
 <img src="img/hexagonal_maze_big.png" title="hexagonal_maze_big" alt="hexagonal_maze_big" width="600px" />
 
