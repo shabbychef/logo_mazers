@@ -27,3 +27,5 @@ Some screenshots here, all generated from the [calormen online logo interpreter]
 
 <img src="img/koch_maze_big.png" title="koch_maze_big" alt="koch_maze_big" width="600px" />
 
+<img src="img/snowfake_big.png" title="snowfake_big" alt="snowfake_big" width="600px" />
+
