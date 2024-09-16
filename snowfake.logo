@@ -151,34 +151,44 @@ To triangle :depth :length
 end
 
 To noskin :hashole :depth :length
+	local "mygray
+	make "mygray (10 * (8 - :depth)) 
+	;setpencolor (list :mygray :mygray :mygray)
 	local "myseg
 	make "myseg (power 2 :depth)
 	local "totlen
 	make "totlen (:myseg * :length)
 	local "quartoflip
-	make "quartoflip (random 1 4)
-	forward (:totlen/2)
-	triangle (:depth-2) (:length)
-	back (:totlen/4)
-	if (:myseg > 1) [ holey_line (:length) (:myseg/2) ]
-	back (:totlen/4)
-	ifelse (:depth>1) [
+	make "quartoflip (random 1 6)
+	ifelse (:depth> (random 1 5)) [
+		; triangle nub
+		forward (:totlen/2)
+		triangle (:depth-2) (:length)
+		back (:totlen/4)
+		if (:myseg > 1) [ holey_line (:length) (:myseg/2) ]
+		back (:totlen/4)
+
+		; recurse the sides
 		noskin (and :hashole (:quartoflip=1)) (:depth-2) (:length)
 		right 60
-		noskin (and :hashole (:quartoflip=2)) (:depth-1) (:length)
+		noskin (and :hashole (or (:quartoflip=2) (:quartoflip=3))) (:depth-1) (:length)
 		left 120
-		noskin (and :hashole (:quartoflip=3)) (:depth-1) (:length)
+		noskin (and :hashole (or (:quartoflip=4) (:quartoflip=5))) (:depth-1) (:length)
 		right 60
-		noskin (and :hashole (:quartoflip=4)) (:depth-2) (:length)
+		noskin (and :hashole (:quartoflip=6)) (:depth-2) (:length)
 	] [
-		setpencolor "gray
+		; closing lines
 		ifelse (:hashole) [ 
-			holey_line (:totlen/2) 2
+			;holey_line (:totlen/2) 2
+			setpensize 3
+			setpencolor "red
+			noholey_line (:totlen/2) 2
+			setpencolor "black
+			setpensize 1
 		] [
 			noholey_line (:totlen/2) 2
 		]
 		forward :totlen
-		setpencolor "black
 	]
 end
 
@@ -191,6 +201,7 @@ To snowfake :depth :length
 	]
 	forward ((power 2 (:depth-1)) * :length)
 	right 180
+	setpencolor [0 0 0]
 	triangle (:depth-1) (:length)
 end
 
@@ -203,10 +214,10 @@ end
 
 clearall
 penup
-setpos [ -100 -250 ]
+setpos [ -100 -270 ]
 right 30
-rerandom
-snowfake 6 7
+;rerandom
+snowfake 6 10 
 
 ;for vim modeline: (do not edit)
 ; vim:ts=2:sw=2:tw=79:fdm=marker:fmr=FOLDUP,UNFOLD:cms=;%s:tags=.tags;:syn=logo:ft=logo:ai:si:nocin:nu:fo=cro:cino=p0t0c5(0:
